@@ -1,0 +1,5 @@
+Hello world! This is a simple sample text file.
+It is created for testing text processing logic.
+why langchain?
+Text processing is fun. Text processing helps in learning Python.
+Python is powerful, and Python is popular.
