@@ -1,3 +1,4 @@
+import json
 class DocumentManager:
     def __init__ (self,file_path):
         self.file_path = file_path
@@ -79,6 +80,19 @@ class DocumentManager:
         }
 
         return result
+    
+def export_to_json(data,output_file):
+    """
+    Export document statistics to a JSON file
+    """
+    # Get statistics (this also prints stats as you wanted)
+    
+
+    # Save to JSON file
+    with open(output_file, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=4)
+
+    print(f"\n✅ Document statistics exported to '{output_file}'")
 
 
 
@@ -91,3 +105,4 @@ result = doc.calculate_document_statistics()
 print("\nReturned Statistics Dictionary:")
 print(result)
 print("Document processing completed.")
+export_to_json(result, "document_statistics.json")
