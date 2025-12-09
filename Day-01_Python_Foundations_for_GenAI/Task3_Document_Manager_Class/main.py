@@ -17,8 +17,77 @@ class DocumentManager:
         except Exception as e:
             print(f"An error occurred: {e}")
 
+    def search_documents(self,keyword):
+        print(f"Searching for keyword: {keyword}")
+        if keyword in self.content:
+            print(f"Keyword '{keyword}' found in document.")
+        else:
+            print(f"Keyword '{keyword}' not found in document.")
+
+
+    def calculate_document_statistics(self):
+        content = self.content
+        line_count = 0
+        total_word_count = 0
+        total_char_count = 0
+        total_sentence_dot = 0
+        total_sentence_exclamation = 0
+        total_sentence_question = 0
+
+        for line in content.split("\n"):
+            line_count += 1
+
+            # character count
+            total_char_count += len(line)
+
+            # word count
+            words = line.split()
+            total_word_count += len(words)
+
+            # sentence counts
+            total_sentence_dot += line.count(".")
+            total_sentence_exclamation += line.count("!")
+            total_sentence_question += line.count("?")
+
+            print(f"Line {line_count} has {len(words)} words.")
+
+        total_sentences = (
+            total_sentence_dot +
+            total_sentence_exclamation +
+            total_sentence_question
+        )
+
+        # 🔹 PRINT STATEMENTS (as requested)
+        print("\nDocument Statistics:")
+        print(f"Total Lines: {line_count}")
+        print(f"Total Words: {total_word_count}")
+        print(f"Total Characters: {total_char_count}")
+        print(f"Total Sentences (by '.'): {total_sentence_dot}")
+        print(f"Total Sentences (by '!'): {total_sentence_exclamation}")
+        print(f"Total Sentences (by '?'): {total_sentence_question}")
+        print(f"Total Sentences: {total_sentences}")
+
+        # 🔹 JSON / DICT RESULT
+        result = {
+            "total_lines": line_count,
+            "total_words": total_word_count,
+            "total_characters": total_char_count,
+            "total_sentences_by_dot": total_sentence_dot,
+            "total_sentences_by_exclamation": total_sentence_exclamation,
+            "total_sentences_by_question": total_sentence_question,
+            "total_sentences": total_sentences
+        }
+
+        return result
+
+
 
 
 
 doc = DocumentManager("sample.txt")
 doc.load_document()
+doc.search_documents("chunking")
+result = doc.calculate_document_statistics()
+print("\nReturned Statistics Dictionary:")
+print(result)
+print("Document processing completed.")
