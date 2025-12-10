@@ -1,0 +1,12 @@
+{
+    "file_name": "sample_2.txt",
+    "statistics": {
+        "total_lines": 1,
+        "total_words": 9,
+        "total_characters": 47,
+        "total_sentences_by_dot": 1,
+        "total_sentences_by_exclamation": 1,
+        "total_sentences_by_question": 0,
+        "total_sentences": 2
+    }
+}
