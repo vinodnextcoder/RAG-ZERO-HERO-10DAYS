@@ -32,20 +32,46 @@ def chat_with_context(messages, user_message):
         model="openai/gpt-oss-20b:free",
         messages=messages
     )
-    print("Response received.",response.choices[0].message.content)
-    assistant_message =  response.choices[0].message.content
-    messages.append({"role": "assistant", "content": assistant_message})
 
+    assistant_message = response.choices[0].message.content
+    print(f"\n🤖 Assistant: {assistant_message}")
+
+    messages.append({"role": "assistant", "content": assistant_message})
     return assistant_message, messages
 
 
-# Usage
-conversation = []
-response, conversation = chat_with_context(
-    conversation, 
-    "My name is Alice"
-)
-response, conversation = chat_with_context(
-    conversation,
-    "What's my name?"  # Model remembers context!
-)
+# ============================
+#   INTERACTIVE CHAT LOOP
+# ============================
+
+def start_chat():
+    print("💬 Simple Chatbot with Memory")
+    print("--------------------------------------")
+    print("Type your messages below.")
+    print("Commands:")
+    print(" - 'clear' or 'reset' to clear history")
+    print(" - 'quit' or 'exit' to stop\n")
+
+    conversation = []
+
+    while True:
+        user_input = input("👤 You: ").strip()
+
+        # Exit command
+        if user_input.lower() in ["quit", "exit"]:
+            print("👋 Exiting chat. Goodbye!")
+            break
+
+        # Clear conversation
+        if user_input.lower() in ["clear", "reset"]:
+            conversation = []
+            print("🧹 Conversation history cleared!")
+            continue
+
+        # Normal conversation
+        _, conversation = chat_with_context(conversation, user_input)
+
+
+# Run the chatbot
+if __name__ == "__main__":
+    start_chat()
