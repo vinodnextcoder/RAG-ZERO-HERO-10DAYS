@@ -19,28 +19,28 @@ if not api_key:
 
 
 # 3️⃣ Create client only if key exists
-tempature = [0.1, 0.7, 1.5]
+models = ["openai/gpt-oss-20b:free", "mistralai/devstral-2512:free"]
 responses = []
-for t in tempature:
-    print(f"\n--- Temperature: {t} ---")
+for model_name in models:
+    print(f"\n--- Model: {model_name} ---")
     client = OpenAI(
         base_url="https://openrouter.ai/api/v1",
-        api_key=api_key,
+        api_key=api_key
     )
 
     # 4️⃣ Make request
     try:
         chat_completion = client.chat.completions.create(
-            model="openai/gpt-oss-20b:free",
+            model=model_name,
+            temperature=1.0,
             messages=[
                 {"role": "user", "content": "Write a haiku about coding"}
             ],
-            temperature=t
         )
 
         # print(chat_completion.choices[0].message.content)
         responses.append({
-            "temperature": t,
+            "model": model_name,
             "response": chat_completion.choices[0].message.content
         })
 
@@ -51,8 +51,8 @@ for t in tempature:
 # 5️⃣ Display all responses
 print("\n=== Summary of Responses ===")
 
-print(f"{'Temperature':<15} | Response")
+print(f"{'model':<15} | Response")
 print("-" * 70)
 
 for resp in responses:
-    print(f"{resp['temperature']:<15} | {resp['response']}")
+    print(f"{resp['model']:<15} | {resp['response']}")
