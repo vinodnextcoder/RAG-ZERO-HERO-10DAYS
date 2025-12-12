@@ -1,3 +1,13 @@
 Error: ModuleNotFoundError
 Cause: Python cannot find the specified module in sys.path.
 Fix: Install missing package using pip, or check virtual environment.
+Python lists are ordered, mutable collections. 
+Key operations: append(), insert(), remove(), pop(), slicing.
+Lists can store mixed data types.
+Functions in Python are defined using `def`.
+They support positional, keyword, default, *args, and **kwargs arguments.
+Functions return values using the `return` keyword.
+Python supports object-oriented programming.
+Classes are defined with `class`.
+Objects are created by instantiating the class.
+Instance attributes are defined in __init__.
