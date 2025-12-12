@@ -2,6 +2,8 @@
 
 from openai import OpenAI
 import os
+from dotenv import load_dotenv
+load_dotenv()
 
 api_key = os.getenv("OPENROUTER_API_KEY")
 
@@ -70,7 +72,7 @@ for prompt in prompts:
     try:
         # Test old prompt
         resp_old = client.chat.completions.create(
-            model="gpt-4o-mini",
+            model= "openai/gpt-oss-20b:free",
             messages=[
                 {"role": "system", "content": system_message},
                 {"role": "user", "content": prompt["old_prompt"]}
@@ -80,7 +82,7 @@ for prompt in prompts:
 
         # Test improved prompt
         resp_new = client.chat.completions.create(
-            model="gpt-4o-mini",
+            model= "openai/gpt-oss-20b:free",
             messages=[
                 {"role": "system", "content": system_message},
                 {"role": "user", "content": prompt["improved_prompt"]}
