@@ -1,0 +1,3 @@
+Error: ModuleNotFoundError
+Cause: Python cannot find the specified module in sys.path.
+Fix: Install missing package using pip, or check virtual environment.
