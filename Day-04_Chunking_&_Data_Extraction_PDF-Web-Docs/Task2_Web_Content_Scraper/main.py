@@ -13,10 +13,11 @@ class Webscraper:
     def scrape_quotes(self):
         page = requests.get(self.url)
         # print(page.text)
-        
         soup = BeautifulSoup(page.content, "html.parser")
-        result = soup.find(id="hockey")
-        print(result)
+        webpage_data = soup.find(id="hockey")
+        header_data = webpage_data.find("div", class_="col-md-12")
+        title_element = header_data.find("h1").text
+        print(title_element)
 
 
 
