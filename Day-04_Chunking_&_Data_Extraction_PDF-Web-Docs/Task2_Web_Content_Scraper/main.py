@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
+import json
 
 load_dotenv()
 class Webscraper:
@@ -18,7 +19,31 @@ class Webscraper:
         header_data = webpage_data.find("div", class_="col-md-12")
         title_element = header_data.find("h1").text
         print(title_element)
+        table_data = webpage_data.find("table", class_="table")
+        # print(table_data)
+        headers = [th.text.strip() for th in table_data.find_all("th")]
 
+        # Extract rows
+        # Extract row data
+        rows = []
+        for tr in table_data.find_all("tr")[1:]:  # skip header row
+            cells = tr.find_all("td")
+
+            if not cells:
+                continue
+
+            row_data = {}
+            for header, cell in zip(headers, cells):
+                text = cell.get_text(strip=True)
+                row_data[header] = text
+                rows.append(row_data)
+
+        result = {
+            "url": self.url,
+            "website_title":title_element,
+            "data":rows
+        }
+        print(result)
 
 
 
