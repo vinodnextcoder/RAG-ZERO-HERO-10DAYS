@@ -24,6 +24,7 @@ class ChunkingStrategyComparison:
         text_per_page = []
         page_data = []
 
+
         print(f"Total pages detected: {total_pages}")
         print("Starting text extraction...\n")
 
@@ -43,9 +44,43 @@ class ChunkingStrategyComparison:
                 f"({progress:.2f}%)",
                 end="\r"
             )
+        self.text_data = text_per_page
 
         print("\n✅ PDF extraction completed.")
+    def chunking(self):
+            # Join and tokenize
+            content = " ".join(self.text_data).split()
+            word_length = len(content)
+
+            chunk_size = 10
+            overlap_size = 3
+
+            start = 0
+            chunk_id = 0
+            chunk_text = []
+
+            while start < word_length:
+                end = min(start + chunk_size, word_length)
+                chunk_words = content[start:end]
+
+                chunk_text.append({
+                    "chunk_id": chunk_id,
+                    "text": " ".join(chunk_words),
+                    "start_pos": start,
+                    "end_pos": end,
+                    "word_count": len(chunk_words)
+                })
+
+                chunk_id += 1
+
+                # Move start with overlap
+                start += (chunk_size - overlap_size)
+            print(chunk_text)
+
+            return chunk_text
+
 
 
 readPdf = ChunkingStrategyComparison("Sample.pdf")
 readPdf.add_context()
+readPdf.chunking()
