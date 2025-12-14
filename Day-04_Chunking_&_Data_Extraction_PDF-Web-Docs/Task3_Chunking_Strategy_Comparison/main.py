@@ -83,6 +83,7 @@ class ChunkingStrategyComparison:
     def chunking_by_sentence(self):
         # Join text data
         content = " ".join(self.text_data)
+        # print('=======>>>>>',self.text_data)
         content = content.replace("\n", " ").strip()
 
         # Split into sentences
@@ -135,9 +136,70 @@ class ChunkingStrategyComparison:
                 "end_pos": start_word_pos + current_word_count,
                 "word_count": current_word_count
             })
-        print(chunks)
+        # print(chunks)
         return chunks
+    
+    def chunking_by_paragraph(self):
+            """
+            Splits text into paragraphs with strong boundary rules.
+            Returns a list of dictionaries with 'chunk_id', 'text', 'start_pos', 'end_pos', 'word_count'.
+            """
+            # Join all text into a single string
+            content = " ".join(self.text_data)
+            # Remove newline characters that are within sentences
+            clean_text = re.sub(r"(?<=\w)\n(?=\w)", " ", content)
+            lines = clean_text.split("\n")
+
+            paragraphs = []
+            buffer = ""
+            chunk_id = 0
+            start_pos = 0  # Word-level start position
+
+            for line in lines:
+                line = line.strip()
+                if not line:
+                    continue
+
+                # Paragraph boundary rules
+                if buffer and (
+                    (line[0].isupper() and buffer.endswith(".")) or re.match(r"^(\d+\.|•|-)", line)
+                ):
+                    words = buffer.split()
+                    end_pos = start_pos + len(words)
+
+                    paragraphs.append({
+                        "chunk_id": chunk_id,
+                        "text": buffer.strip(),
+                        "start_pos": start_pos,
+                        "end_pos": end_pos,
+                        "word_count": len(words)
+                    })
+
+                    chunk_id += 1
+                    start_pos = end_pos
+                    buffer = line
+                else:
+                    buffer += " " + line
+
+            # Append last paragraph
+            if buffer:
+                words = buffer.split()
+                end_pos = start_pos + len(words)
+                paragraphs.append({
+                    "chunk_id": chunk_id,
+                    "text": buffer.strip(),
+                    "start_pos": start_pos,
+                    "end_pos": end_pos,
+                    "word_count": len(words)
+                })
+            print(paragraphs)
+
+            return paragraphs
+
+        
+
 readPdf = ChunkingStrategyComparison("Sample.pdf")
 readPdf.add_context()
 readPdf.chunking_by_word()
 readPdf.chunking_by_sentence()
+readPdf.chunking_by_paragraph()
