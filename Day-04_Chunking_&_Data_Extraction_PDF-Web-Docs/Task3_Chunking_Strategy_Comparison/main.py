@@ -1,5 +1,6 @@
 from pypdf import PdfReader
 from dotenv import load_dotenv
+import re
 
 load_dotenv()
 class ChunkingStrategyComparison:
@@ -47,7 +48,7 @@ class ChunkingStrategyComparison:
         self.text_data = text_per_page
 
         print("\n✅ PDF extraction completed.")
-    def chunking(self):
+    def chunking_by_word(self):
             # Join and tokenize
             content = " ".join(self.text_data).split()
             word_length = len(content)
@@ -75,12 +76,68 @@ class ChunkingStrategyComparison:
 
                 # Move start with overlap
                 start += (chunk_size - overlap_size)
-            print(chunk_text)
+            # print(chunk_text)
 
             return chunk_text
+    
+    def chunking_by_sentence(self):
+        # Join text data
+        content = " ".join(self.text_data)
+        content = content.replace("\n", " ").strip()
 
+        # Split into sentences
+        sentences = re.split(r'(?<=[.!?])\s+', content)
 
+        max_words = 100           # similar to chunk_size
+        overlap_sentences = 1     # sentence-level overlap
 
+        chunks = []
+        current_chunk = []
+        current_word_count = 0
+
+        chunk_id = 0
+        start_word_pos = 0
+
+        for sentence in sentences:
+            sentence_words = sentence.split()
+            sentence_word_count = len(sentence_words)
+
+            # If adding sentence exceeds limit → close chunk
+            if current_word_count + sentence_word_count > max_words:
+                chunk_text = " ".join(current_chunk)
+
+                chunks.append({
+                    "chunk_id": chunk_id,
+                    "text": chunk_text,
+                    "start_pos": start_word_pos,
+                    "end_pos": start_word_pos + current_word_count,
+                    "word_count": current_word_count
+                })
+
+                chunk_id += 1
+
+                # Sentence-level overlap
+                current_chunk = current_chunk[-overlap_sentences:] if overlap_sentences else []
+                current_word_count = sum(len(s.split()) for s in current_chunk)
+                start_word_pos += current_word_count
+
+            # Add sentence
+            current_chunk.append(sentence)
+            current_word_count += sentence_word_count
+
+        # Add last chunk
+        if current_chunk:
+            chunk_text = " ".join(current_chunk)
+            chunks.append({
+                "chunk_id": chunk_id,
+                "text": chunk_text,
+                "start_pos": start_word_pos,
+                "end_pos": start_word_pos + current_word_count,
+                "word_count": current_word_count
+            })
+        print(chunks)
+        return chunks
 readPdf = ChunkingStrategyComparison("Sample.pdf")
 readPdf.add_context()
-readPdf.chunking()
+readPdf.chunking_by_word()
+readPdf.chunking_by_sentence()
