@@ -136,6 +136,6 @@ class EmbeddingGenerator:
         
 
 
-readPdf = EmbeddingGenerator("pdf-sample.pdf")
+readPdf = EmbeddingGenerator("sample.pdf")
 readPdf.add_context()
 readPdf.get_embedding()
