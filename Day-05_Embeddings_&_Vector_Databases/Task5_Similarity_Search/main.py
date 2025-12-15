@@ -1,76 +1,128 @@
-
 from dotenv import load_dotenv
 import chromadb
+from sentence_transformers import SentenceTransformer
+from typing import List, Dict, Optional
+
 load_dotenv()
 
-class ChromaDBDocument:
-    def __init__ (self,collection_name):
-        self.collection = collection_name
-        print(f"Chromadb initializing")
-        self.client = chromadb.Client()
+class SemanticSearchEngine:
+    def __init__(self, collection_name: str, persist_path: Optional[str] = None):
+        """Initialize ChromaDB semantic search engine"""
+        print("Initializing ChromaDB...")
+        if persist_path:
+            self.client = chromadb.Client(
+                chromadb.config.Settings(persist_directory=persist_path)
+            )
+        else:
+            self.client = chromadb.Client()
 
         self.collection = self.client.get_or_create_collection(
             name=collection_name
         )
-        print(f"Chromadb initialized with collection: {self.collection}")
+        self.model = SentenceTransformer("all-MiniLM-L6-v2")
+        print(f"ChromaDB ready with collection: {collection_name}")
 
-        self.content = ""
+    # ------------------ Indexing ------------------
+    def index_documents(
+        self,
+        documents: List[str],
+        ids: List[str],
+        metadatas: Optional[List[Dict]] = None
+    ):
+        """Add documents to ChromaDB (no hardcoded data)"""
+        if not documents or not ids:
+            raise ValueError("Documents and IDs are required")
 
-    def add_context(self):
-        # Add documents
-        documents = [
-            "Python is a high-level programming language",
-            "Dogs are loyal and friendly animals",
-            "Machine learning is a subset of AI"
-        ]
+        if len(documents) != len(ids):
+            raise ValueError("Documents and IDs length mismatch")
 
-        ids = ["doc1", "doc2", "doc3"]
-        metadatas = [
-            {"source": "python_book", "page": 1},
-            {"source": "animal_guide", "page": 5},
-            {"source": "ai_textbook", "page": 10}
-        ]
+        embeddings = self.model.encode(documents).tolist()
 
         self.collection.add(
-                documents=documents,
-                ids=ids,
-                metadatas=metadatas
-            )
+            documents=documents,
+            ids=ids,
+            embeddings=embeddings,
+            metadatas=metadatas
+        )
+        print(f"Indexed {len(documents)} documents")
 
-    def search(self):
-        # Query for similar documents
+    # ------------------ Remove ------------------
+    def remove_documents(self, ids: List[str]):
+        """Remove documents by IDs"""
+        if not ids:
+            raise ValueError("IDs required for deletion")
+
+        self.collection.delete(ids=ids)
+        print(f"Removed documents: {ids}")
+
+    # ------------------ Semantic Search ------------------
+    def semantic_search(
+        self,
+        query: str,
+        top_k: int = 5,
+        where: Optional[Dict] = None
+    ):
+        """Perform semantic search with optional metadata filtering"""
+        if not query:
+            raise ValueError("Query cannot be empty")
+
+        query_embedding = self.model.encode(query).tolist()
+
         results = self.collection.query(
-            query_texts=["programming languages"],
-            n_results=2
+            query_embeddings=[query_embedding],
+            n_results=top_k,
+            where=where,
+            include=["documents", "metadatas", "distances"]
         )
 
-        print("****************search******************")
-        print("Similar documents:")
-        for i, doc in enumerate(results['documents'][0]):
-            print(f"{i+1}. {doc}")
-            print(f"   Metadata: {results['metadatas'][0][i]}")
+        return self._format_results(results)
 
-    def get_by_id(self):
-        print("****************search by id******************")
-        results = self.collection.get(ids=["doc1","doc2"])
-        for doc_id, doc_text, metadata in zip(
-            results["ids"], results["documents"], results["metadatas"]
-        ):
-            print("ID:", doc_id)
-            print("Text:", doc_text)
-            print("Metadata:", metadata)
-            print("-" * 40)
+    # ------------------ Helpers ------------------
+    def _format_results(self, results):
+        """Format search results with similarity scores"""
+        formatted = []
+        docs = results.get("documents", [[]])[0]
+        metas = results.get("metadatas", [[]])[0]
+        distances = results.get("distances", [[]])[0]
 
-    def get_stats(self):
-        """Get collection statistics"""
-        print("*******collection state************")
-        count = self.collection.count()
-        print("total_documents",count)
-        return {"total_documents": count}
+        for doc, meta, dist in zip(docs, metas, distances):
+            formatted.append({
+                "document": doc,
+                "metadata": meta,
+                "similarity_score": round(1 - dist, 4)
+            })
+
+        return formatted
 
 
-read_collection = ChromaDBDocument("chromadoclearn")
-read_collection.add_context()
-read_collection.search()
-read_collection.get_by_id()
-read_collection.get_stats()
+# ------------------ Example Usage ------------------
+if __name__ == "__main__":
+    engine = SemanticSearchEngine(collection_name="my_semantic_docs")
+
+    # Index documents (dynamic input)
+    engine.index_documents(
+        documents=[
+            "Python is a popular programming language",
+            "Dogs are very loyal animals",
+            "Artificial Intelligence includes machine learning"
+        ],
+        ids=["d1", "d2", "d3"],
+        metadatas=[
+            {"source": "tech", "page": 1},
+            {"source": "animals", "page": 5},
+            {"source": "ai", "page": 10}
+        ]
+    )
+
+    # Semantic search
+    results = engine.semantic_search(
+        query="What is machine learning?",
+        top_k=2,
+        where={"source": "ai"}
+    )
+
+    for i, r in enumerate(results, 1):
+        print(f"\nResult {i}")
+        print("Score:", r["similarity_score"])
+        print("Text:", r["document"])
+        print("Metadata:", r["metadata"])
