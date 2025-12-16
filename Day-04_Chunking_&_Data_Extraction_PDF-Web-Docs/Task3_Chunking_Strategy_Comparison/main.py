@@ -49,36 +49,35 @@ class ChunkingStrategyComparison:
 
         print("\n✅ PDF extraction completed.")
     def chunking_by_word(self):
-            # Join and tokenize
-            content = " ".join(self.text_data).split()
-            word_length = len(content)
+        # Tokenize by words
+        content = " ".join(self.text_data).split()
+        # print(content)
 
-            chunk_size = 10
-            overlap_size = 3
+        word_length = len(content)
 
-            start = 0
-            chunk_id = 0
-            chunk_text = []
+        chunk_size = 10
+        overlap_size = 3
 
-            while start < word_length:
-                end = min(start + chunk_size, word_length)
-                chunk_words = content[start:end]
+        start = 0
+        chunk_id = 0
+        chunk_text = []
 
-                chunk_text.append({
-                    "chunk_id": chunk_id,
-                    "text": " ".join(chunk_words),
-                    "start_pos": start,
-                    "end_pos": end,
-                    "word_count": len(chunk_words)
-                })
+        while start < word_length:
+            end = min(start + chunk_size, word_length)
+            chunk_words = content[start:end]
 
-                chunk_id += 1
+            chunk_text.append({
+                "chunk_id": chunk_id,
+                "text": " ".join(chunk_words),
+                "start_pos": start,
+                "end_pos": end,
+                "word_count": len(chunk_words)
+            })
 
-                # Move start with overlap
-                start += (chunk_size - overlap_size)
-            # print(chunk_text)
-
-            return chunk_text
+            chunk_id += 1
+            start += (chunk_size - overlap_size)
+        print(chunk_words)
+        return chunk_text
     
     def chunking_by_sentence(self):
         # Join text data
@@ -201,5 +200,5 @@ class ChunkingStrategyComparison:
 readPdf = ChunkingStrategyComparison("Sample.pdf")
 readPdf.add_context()
 readPdf.chunking_by_word()
-readPdf.chunking_by_sentence()
-readPdf.chunking_by_paragraph()
+# readPdf.chunking_by_sentence()
+# readPdf.chunking_by_paragraph()
