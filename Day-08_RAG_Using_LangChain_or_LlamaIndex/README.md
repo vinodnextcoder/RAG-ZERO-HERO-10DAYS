@@ -2,7 +2,7 @@
 
 ## 1. Beginner-Friendly Introduction
 
-Now that you've built RAG from scratch, it's time to learn the frameworks that make it easier! **LangChain** and **LlamaIndex** are popular frameworks that abstract away the complexity and provide powerful features out of the box.
+Now that you've built RAG from scratch, it's time to learn the frameworks that make it easier! **LangChain** and **LlamaIndex** are popular frameworks that abstract away the complexity and provide powerful features out of the box
 
 **Why use frameworks?**
 - **Faster development**: Pre-built components
